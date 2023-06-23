@@ -14,6 +14,7 @@ type Config struct {
 	Port int
 	Host string
 	DB   DBConfigs
+	Cors CorsConfigs
 }
 
 type DBConfigs struct {
@@ -26,6 +27,14 @@ type DBConfigs struct {
 	ConnectionLifetime time.Duration
 	MaxIdle            int
 	MaxOpen            int
+}
+
+type CorsConfigs struct {
+	AllowOrigins     string
+	AllowMethods     string
+	AllowHeaders     string
+	AllowCredentials bool
+	ExposeHeaders    string
 }
 
 func init() {
@@ -48,6 +57,13 @@ func init() {
 	conf.DB.MaxIdle = utils.GetEnvAsInt("DB_MAX_IDLE", 20)
 	conf.DB.MaxOpen = utils.GetEnvAsInt("DB_MAX_OPEN", 50)
 
+	conf.Cors.AllowOrigins = utils.GetEnv("ALLOW_ORIGINS", "")
+	conf.Cors.AllowMethods = utils.GetEnv("ALLOW_METHODS", "")
+	conf.Cors.AllowHeaders = utils.GetEnv("ALLOW_HEADERS", "")
+	conf.Cors.AllowCredentials = utils.GetEnvAsBool("ALLOW_CREDENTIALS", false)
+	conf.Cors.ExposeHeaders = utils.GetEnv("EXPOSE_HEADERS", "")
+
+	utils.Success("Config is loaded successfully")
 	config = conf
 }
 
