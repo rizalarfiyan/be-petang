@@ -35,8 +35,11 @@ func main() {
 	apps.Use(logger.New())
 
 	route := app.NewRouter(apps)
+
 	baseHandler := handler.NewBaseHandler()
+	authHandler := handler.NewAuthHandler()
 	route.BaseRoute(baseHandler)
+	route.AuthRoute(authHandler)
 
 	baseUrl := fmt.Sprintf("%s:%d", conf.Host, conf.Port)
 	err := apps.Listen(baseUrl)

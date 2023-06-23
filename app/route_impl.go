@@ -18,3 +18,9 @@ func NewRouter(app *fiber.App) Router {
 func (r *router) BaseRoute(handler handler.BaseHandler) {
 	r.app.Get("/", handler.Home)
 }
+
+func (r *router) AuthRoute(handler handler.AuthHandler) {
+	group := r.app.Group("/auth")
+	group.Post("/login", handler.Login)
+	group.Post("/register", handler.Register)
+}
