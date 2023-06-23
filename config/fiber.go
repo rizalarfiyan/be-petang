@@ -14,10 +14,10 @@ func FiberConfig() fiber.Config {
 
 func CorsConfig() cors.Config {
 	return cors.Config{
-		AllowOrigins:     config.Cors.AllowOrigins,
-		AllowMethods:     config.Cors.AllowMethods,
-		AllowHeaders:     config.Cors.AllowHeaders,
-		AllowCredentials: config.Cors.AllowCredentials,
-		ExposeHeaders:    config.Cors.ExposeHeaders,
+		AllowOrigins:     conf.Cors.AllowOrigins,
+		AllowMethods:     conf.Cors.AllowMethods,
+		AllowHeaders:     conf.Cors.AllowHeaders,
+		AllowCredentials: conf.Cors.AllowCredentials,
+		ExposeHeaders:    conf.Cors.ExposeHeaders,
 	}
 }

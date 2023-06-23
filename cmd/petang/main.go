@@ -7,14 +7,21 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/rizalarfiyan/be-petang/app"
+	"github.com/rizalarfiyan/be-petang/app/handler"
 	"github.com/rizalarfiyan/be-petang/config"
 	"github.com/rizalarfiyan/be-petang/database"
 	"github.com/rizalarfiyan/be-petang/utils"
 )
 
+func init() {
+	config.Init()
+	database.PostgresInit()
+}
+
 func main() {
 	conf := config.Get()
-	postgres := database.Postgres()
+	postgres := database.PostgresConnection()
 	defer func() {
 		err := postgres.Close()
 		if err != nil {
@@ -22,13 +29,17 @@ func main() {
 		}
 	}()
 
-	app := fiber.New(config.FiberConfig())
-	app.Use(recover.New())
-	app.Use(cors.New(config.CorsConfig()))
-	app.Use(logger.New())
+	apps := fiber.New(config.FiberConfig())
+	apps.Use(recover.New())
+	apps.Use(cors.New(config.CorsConfig()))
+	apps.Use(logger.New())
+
+	route := app.NewRouter(apps)
+	baseHandler := handler.NewBaseHandler()
+	route.BaseRoute(baseHandler)
 
 	baseUrl := fmt.Sprintf("%s:%d", conf.Host, conf.Port)
-	err := app.Listen(baseUrl)
+	err := apps.Listen(baseUrl)
 	if err != nil {
 		utils.Error("Error app serve: ", err)
 	}

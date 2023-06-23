@@ -1,27 +1,47 @@
 package database
 
 import (
+	"context"
 	"fmt"
-	"log"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/rizalarfiyan/be-petang/config"
+	"github.com/rizalarfiyan/be-petang/utils"
 )
 
-func Postgres() *sqlx.DB {
-	config := config.Get()
+var postgresConn *sqlx.DB
 
-	connection := fmt.Sprintf("postgres://%s:%s@%s:%v/%s?sslmode=disable", config.DB.User, config.DB.Password, config.DB.Host, config.DB.Port, config.DB.Name)
-	db, err := sqlx.Open("postgres", connection)
+func PostgresInit() {
+	utils.Info("Connect postgres server...")
+	conf := config.Get()
+	ctx := context.Background()
+	dsn := fmt.Sprintf("postgresql://%v:%v@%v:%v/%v?sslmode=disable", conf.DB.User, conf.DB.Password, conf.DB.Host, conf.DB.Port, conf.DB.Name)
+	db, err := sqlx.ConnectContext(ctx, "postgres", dsn)
 	if err != nil {
-		log.Fatal("Error connection:", err.Error())
+		utils.Error("Postgres connection problem: ", err)
 	}
 
-	db.SetConnMaxIdleTime(config.DB.ConnectionIdle)
-	db.SetConnMaxLifetime(config.DB.ConnectionLifetime)
-	db.SetMaxIdleConns(config.DB.MaxIdle)
-	db.SetMaxOpenConns(config.DB.MaxOpen)
+	db.SetConnMaxIdleTime(conf.DB.ConnectionIdle)
+	db.SetConnMaxLifetime(conf.DB.ConnectionLifetime)
+	db.SetMaxIdleConns(conf.DB.MaxIdle)
+	db.SetMaxOpenConns(conf.DB.MaxOpen)
 
-	return db
+	postgresConn = new(sqlx.DB)
+	postgresConn = db
+
+	utils.Success("Postgres connected")
+}
+
+func PostgresConnection() *sqlx.DB {
+	return postgresConn
+}
+
+func PostgresIsConnected() bool {
+	err := postgresConn.Ping()
+	if err != nil {
+		utils.SafeError("Postgres fails health check: ", err)
+		return false
+	}
+	return true
 }

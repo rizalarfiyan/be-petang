@@ -8,8 +8,6 @@ import (
 	"github.com/rizalarfiyan/be-petang/utils"
 )
 
-var config *Config
-
 type Config struct {
 	Port int
 	Host string
@@ -37,13 +35,15 @@ type CorsConfigs struct {
 	ExposeHeaders    string
 }
 
-func init() {
+var conf *Config
+
+func Init() {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf(".env is not loaded properly: %s", err.Error())
 	}
 
-	conf := new(Config)
+	conf = new(Config)
 	conf.Port = utils.GetEnvAsInt("PORT", 8080)
 	conf.Host = utils.GetEnv("HOST", "")
 
@@ -64,9 +64,8 @@ func init() {
 	conf.Cors.ExposeHeaders = utils.GetEnv("EXPOSE_HEADERS", "")
 
 	utils.Success("Config is loaded successfully")
-	config = conf
 }
 
 func Get() *Config {
-	return config
+	return conf
 }
