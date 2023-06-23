@@ -2,19 +2,30 @@ package config
 
 import (
 	"log"
-	"os"
+	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/rizalarfiyan/be-petang/utils"
 )
 
 var config *Config
 
 type Config struct {
-	DB_HOST     string
-	DB_PORT     string
-	DB_NAME     string
-	DB_USERNAME string
-	DB_PASSWORD string
+	Port int
+	Host string
+	DB   DBConfigs
+}
+
+type DBConfigs struct {
+	Name               string
+	Host               string
+	Port               int
+	User               string
+	Password           string
+	ConnectionIdle     time.Duration
+	ConnectionLifetime time.Duration
+	MaxIdle            int
+	MaxOpen            int
 }
 
 func init() {
@@ -24,11 +35,18 @@ func init() {
 	}
 
 	conf := new(Config)
-	conf.DB_HOST = os.Getenv("DB_HOST")
-	conf.DB_PORT = os.Getenv("DB_PORT")
-	conf.DB_NAME = os.Getenv("DB_NAME")
-	conf.DB_USERNAME = os.Getenv("DB_USERNAME")
-	conf.DB_PASSWORD = os.Getenv("DB_PASSWORD")
+	conf.Port = utils.GetEnvAsInt("PORT", 8080)
+	conf.Host = utils.GetEnv("HOST", "")
+
+	conf.DB.Name = utils.GetEnv("DB_NAME", "")
+	conf.DB.Host = utils.GetEnv("DB_HOST", "")
+	conf.DB.Port = utils.GetEnvAsInt("DB_PORT", 5432)
+	conf.DB.User = utils.GetEnv("DB_USER", "")
+	conf.DB.Password = utils.GetEnv("DB_PASSWORD", "")
+	conf.DB.ConnectionIdle = utils.GetEnvAsTimeDuration("DB_CONNECTION_IDLE", 1*time.Minute)
+	conf.DB.ConnectionLifetime = utils.GetEnvAsTimeDuration("DB_CONNECTION_LIFETIME", 5*time.Minute)
+	conf.DB.MaxIdle = utils.GetEnvAsInt("DB_MAX_IDLE", 20)
+	conf.DB.MaxOpen = utils.GetEnvAsInt("DB_MAX_OPEN", 50)
 
 	config = conf
 }
