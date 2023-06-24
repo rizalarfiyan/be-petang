@@ -9,10 +9,14 @@ import (
 )
 
 type Config struct {
-	Port int
-	Host string
-	DB   DBConfigs
-	Cors CorsConfigs
+	Port  int
+	Host  string
+	DB    DBConfigs
+	Cors  CorsConfigs
+	Redis RedisConfigs
+	Email EmailConfigs
+	FE    FEConfigs
+	JWT   JWTConfigs
 }
 
 type DBConfigs struct {
@@ -33,6 +37,33 @@ type CorsConfigs struct {
 	AllowHeaders     string
 	AllowCredentials bool
 	ExposeHeaders    string
+}
+
+type RedisConfigs struct {
+	Host            string
+	Port            int
+	User            string
+	Password        string
+	ExpiredDuration time.Duration
+	DialTimeout     time.Duration
+}
+
+type EmailConfigs struct {
+	Host     string
+	Port     int
+	User     string
+	Password string
+	From     string
+}
+
+type FEConfigs struct {
+	BaseUrl           string
+	ChangePasswordUrl string
+}
+
+type JWTConfigs struct {
+	SecretKey string
+	Expired   time.Duration
 }
 
 var conf *Config
@@ -62,6 +93,25 @@ func Init() {
 	conf.Cors.AllowHeaders = utils.GetEnv("ALLOW_HEADERS", "")
 	conf.Cors.AllowCredentials = utils.GetEnvAsBool("ALLOW_CREDENTIALS", false)
 	conf.Cors.ExposeHeaders = utils.GetEnv("EXPOSE_HEADERS", "")
+
+	conf.Redis.Host = utils.GetEnv("REDIS_HOST", "")
+	conf.Redis.Port = utils.GetEnvAsInt("REDIS_PORT", 6379)
+	conf.Redis.User = utils.GetEnv("REDIS_USER", "")
+	conf.Redis.Password = utils.GetEnv("REDIS_PASSWORD", "")
+	conf.Redis.ExpiredDuration = utils.GetEnvAsTimeDuration("REDIS_EXPIRED_DURATION", 15*time.Minute)
+	conf.Redis.DialTimeout = utils.GetEnvAsTimeDuration("REDIS_DIAL_TIMEOUT", 5*time.Minute)
+
+	conf.Email.Host = utils.GetEnv("EMAIL_HOST", "")
+	conf.Email.Port = utils.GetEnvAsInt("EMAIL_PORT", 587)
+	conf.Email.User = utils.GetEnv("EMAIL_USER", "")
+	conf.Email.Password = utils.GetEnv("EMAIL_PASSWORD", "")
+	conf.Email.From = utils.GetEnv("EMAIL_FROM", "")
+
+	conf.FE.BaseUrl = utils.GetEnv("FE_BASE_URL", "")
+	conf.FE.ChangePasswordUrl = utils.GetEnv("CHANGE_PASSWORD_URL", "")
+
+	conf.JWT.SecretKey = utils.GetEnv("JWT_SECRET_KEY", "")
+	conf.JWT.Expired = utils.GetEnvAsTimeDuration("JWT_EXPIRED", 5*24*time.Hour)
 
 	utils.Success("Config is loaded successfully")
 }

@@ -22,6 +22,7 @@ func (h *baseHandler) Home(ctx *fiber.Ctx) error {
 			"app_name": "BE Petang",
 			"status": map[string]interface{}{
 				"postgres": database.PostgresIsConnected(),
+				"redis":    database.RedisIsConnected(),
 			},
 		},
 	})
